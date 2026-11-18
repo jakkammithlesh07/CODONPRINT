@@ -94,7 +94,7 @@ div[data-testid="stTabs"] button {
 # Header
 st.markdown("""
 <div class="hero">
-    <div class="hero-tag">GROUP 18 · BIOINFORMATICS PROJECT</div>
+    <div class="hero-tag">GROUP 18 · PYTHON + BIOPYTHON PROJECT</div>
     <div class="hero-title">🧬 CODONPRINT</div>
     <div class="hero-subtitle">Codon Usage-Based Organism Classifier</div>
     <p style="color:#64748b; margin-bottom:0;">

@@ -79,4 +79,4 @@ with tab3:
         except Exception as error:
             st.error("Could not read this FASTA file: " + str(error))
 
-st.caption("CODONPRINT | Group 18 | Educational prototype")
+st.caption("CODONPRINT | Group 18 | Codon Usage Analysis")

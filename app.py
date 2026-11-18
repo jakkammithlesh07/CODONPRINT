@@ -3,64 +3,44 @@ from codonprint import analyse_sequence, compare_two_sequences, read_fasta_file
 
 st.set_page_config(page_title="CODONPRINT", page_icon="🧬", layout="wide")
 
-# Simple black and silver theme
+# Simple white and light grey design
 st.markdown("""
 <style>
 .stApp {
-    background-color: #111111;
-    color: #eeeeee;
+    background-color: #f5f6f7;
 }
-section[data-testid="stSidebar"] {
-    background-color: #202020;
+.block-container {
+    max-width: 1100px;
+    padding-top: 2rem;
 }
-h1, h2, h3, p, label {
-    color: #eeeeee;
-}
-.stButton button, .stDownloadButton button {
-    background-color: #bfc3c7;
-    color: #111111;
-    border: 1px solid #eeeeee;
-    border-radius: 5px;
-}
-.stButton button:hover, .stDownloadButton button:hover {
-    background-color: #eeeeee;
-    color: #111111;
-    border: 1px solid #ffffff;
+h1, h2, h3 {
+    color: #30343b;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# Sidebar
-st.sidebar.title("CODONPRINT")
-st.sidebar.write("Codon Usage Analysis")
-st.sidebar.divider()
-st.sidebar.write("Group 18")
-st.sidebar.write("Jakkam Mithlesh")
-st.sidebar.write("Ch. Nirav")
-st.sidebar.write("Biotechnology")
-
-# Main heading
+# Project heading
 st.title("🧬 CODONPRINT")
 st.subheader("Codon Usage-Based Organism Classifier")
-st.write("A simple tool to analyse DNA sequences and codon usage.")
-st.info(
-    "This is an educational project. The reference patterns and KNN results "
-    "are demonstrations and are not verified organism identifications."
+st.write("Group 18 | Jakkam Mithlesh and Ch. Nirav")
+st.write(
+    "This project analyses DNA sequences using base counts, GC content "
+    "and codon usage. The reference patterns and KNN results are for "
+    "demonstration and are not verified organism identifications."
 )
+
 st.divider()
 
-# Three main sections
+# Three main parts of the project
 analysis_tab, compare_tab, fasta_tab = st.tabs(
     ["Analyse DNA", "Compare Sequences", "FASTA File"]
 )
 
-# Analyse one DNA sequence
+# 1. Analyse one DNA sequence
 with analysis_tab:
-    st.header("Analyse DNA Sequence")
-    st.write("Enter a DNA sequence using A, T, G and C.")
-
+    st.header("Analyse a DNA Sequence")
     dna = st.text_area(
-        "DNA sequence",
+        "Enter a DNA sequence (A, T, G and C only)",
         placeholder="Example: ATGGCCGCTGCAAAAGCTGCC"
     )
 
@@ -68,9 +48,9 @@ with analysis_tab:
         result = analyse_sequence(dna)
 
         if result is None:
-            st.error("Invalid sequence. Use only A, T, G and C.")
+            st.error("Invalid sequence. Please enter only A, T, G and C.")
         elif len(result["codons"]) == 0:
-            st.warning("Enter at least 3 DNA bases.")
+            st.warning("Enter at least 3 DNA bases to make a codon.")
         else:
             st.success("Analysis completed.")
 
@@ -93,20 +73,26 @@ with analysis_tab:
                 percent = round(result["usage"][codon] * 100, 2)
                 codon_rows.append({
                     "Codon": codon,
-                    "Count": result["counts"][codon],
-                    "Usage (%)": percent
+                    "Usage (%)": percent,
+                    "Count": result["counts"][codon]
                 })
 
-            st.dataframe(codon_rows, use_container_width=True)
+            st.dataframe(codon_rows, use_container_width=True, hide_index=True)
             st.bar_chart(codon_rows, x="Codon", y="Usage (%)")
 
             st.subheader("Codon Fingerprint")
             st.write(result["fingerprint"])
 
             st.subheader("Demonstration Classification")
-            st.write("Closest reference pattern:", result["closest"])
-            st.write("Basic KNN prediction:", result["ml_prediction"])
-            st.write("KNN votes:", result["ml_votes"])
+            col1, col2 = st.columns(2)
+            col1.metric("Closest reference pattern", result["closest"])
+            col2.metric("Basic KNN result", result["ml_prediction"])
+
+            with st.expander("Show KNN votes"):
+                st.write(result["ml_votes"])
+
+            with st.expander("Show codon counts"):
+                st.write(result["counts"])
 
             if result["leftover"] > 0:
                 st.warning(
@@ -121,7 +107,7 @@ with analysis_tab:
             report += "Codon counts: " + str(result["counts"]) + "\n"
             report += "Codon fingerprint: " + result["fingerprint"] + "\n"
             report += "Closest reference pattern: " + result["closest"] + "\n"
-            report += "Basic KNN prediction: " + result["ml_prediction"] + "\n"
+            report += "Basic KNN result: " + result["ml_prediction"] + "\n"
             report += "Note: demonstration data only.\n"
 
             st.download_button(
@@ -130,13 +116,11 @@ with analysis_tab:
                 file_name="codonprint_report.txt"
             )
 
-# Compare two DNA sequences
+# 2. Compare two DNA sequences
 with compare_tab:
-    st.header("Compare Two Sequences")
-    st.write("Enter two DNA sequences to compare their codon usage.")
-
-    first = st.text_area("First DNA sequence")
-    second = st.text_area("Second DNA sequence")
+    st.header("Compare Two DNA Sequences")
+    first = st.text_area("First DNA sequence", key="first_sequence")
+    second = st.text_area("Second DNA sequence", key="second_sequence")
 
     if st.button("Compare DNA"):
         result = compare_two_sequences(first, second)
@@ -153,13 +137,11 @@ with compare_tab:
             )
             st.write("Shared codons:", ", ".join(result["shared"]))
 
-# Read sequences from a FASTA file
+# 3. Read DNA sequences from a FASTA file
 with fasta_tab:
-    st.header("FASTA File Analysis")
-    st.write("Upload a FASTA file containing DNA sequences.")
-
+    st.header("Read a FASTA File")
     uploaded_file = st.file_uploader(
-        "Choose a FASTA file",
+        "Upload a FASTA file",
         type=["fasta", "fa", "fna", "txt"]
     )
 
@@ -180,7 +162,7 @@ with fasta_tab:
                 result = analyse_sequence(sequence)
 
                 if result is None:
-                    st.error("This record contains invalid DNA bases.")
+                    st.error("This record contains an invalid DNA sequence.")
                 elif len(result["codons"]) == 0:
                     st.warning("This record has no complete codons.")
                 else:
@@ -192,7 +174,7 @@ with fasta_tab:
                     st.write("Closest reference pattern:", result["closest"])
 
                     if result["leftover"] > 0:
-                        st.warning(
+                        st.write(
                             str(result["leftover"]) +
                             " leftover base(s) were not used."
                         )

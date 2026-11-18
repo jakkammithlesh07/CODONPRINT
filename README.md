@@ -1,39 +1,37 @@
-# CODONPRINT — Group 18
+# CODONPRINT
+### Codon Usage-Based Organism Classifier
 
-**Project:** Codon Usage-Based Organism Classifier  
-**Team:** Jakkam Mithlesh (SE25UBIT036) and Ch. Nirav (SE25UBIT031)
+**A Python project using Biopython and Basic Machine Learning**
 
-## What it does
-- Cleans and validates a DNA sequence (A, T, G and C).
-- Counts bases and calculates GC content.
-- Splits the sequence into complete triplet codons and calculates codon usage.
-- Displays a simple codon fingerprint.
-- Compares codon usage with small demonstration reference patterns.
-- Compares two DNA sequences and reads FASTA files.
-- Includes a basic K-Nearest Neighbours (KNN) demonstration using a CSV file.
-- Provides a Streamlit web interface.
+**Developed by:** Jakkam Mithlesh and Ch. Nirav  
+**Group 18**
+
+CODONPRINT analyses DNA sequences using codon usage patterns. It calculates base counts, GC content, codon frequencies and codon usage. It also demonstrates a basic **K-Nearest Neighbours (KNN)** classifier using six codon-usage values as features. Biopython is used to read FASTA sequence files. A Streamlit interface provides the web application.
+
+## Features
+- Enter and validate a DNA sequence.
+- Calculate base counts and GC content.
+- Split DNA into complete codons and calculate codon usage.
+- Display the most frequent codons.
+- Compare two DNA sequences.
+- Upload and read FASTA files with Biopython.
+- Demonstrate KNN classification (K = 3) using codon-usage features.
+
+## Important note about the ML data
+`training_data_demo.csv` contains small illustrative training examples created to demonstrate how KNN works. These are not verified biological reference records and do not establish real organism-classification accuracy. The prediction is an educational demonstration, not a confirmed identification. A reliable scientific classifier would require a larger, documented dataset and testing on independent sequences.
 
 ## Run locally
-Install Python, open a terminal in this folder, then run:
-
+Install the packages:
 ```bash
 pip install -r requirements.txt
-python codonprint.py
 ```
-
-To launch the web app:
-
+Run the website:
 ```bash
 streamlit run app.py
 ```
+Run the command-line version:
+```bash
+python codonprint.py
+```
 
-Keep `codonprint.py`, `app.py`, and `training_data_demo.csv` together in the same folder. `sample_sequences.fasta` contains two example records for testing.
-
-## GitHub and deployment
-Upload the project files to a GitHub repository. To deploy, use Streamlit Community Cloud, select this repository and its `main` branch, and set the app file path to `app.py`. Share the hosted URL only after deployment succeeds and the app has been tested.
-
-## Important scientific limitation
-The reference values and `training_data_demo.csv` are small illustrative teaching examples, not a verified biological dataset. The KNN section demonstrates the algorithm; it does not establish scientifically reliable organism identification or validated accuracy. Do not present its output as a confirmed organism identity. A reliable classifier would require documented biological training data from multiple independent sequences and evaluation on separate test data.
-
-## Course concepts used
-The core analysis uses strings, variables, indexing and slicing, lists, dictionaries, conditionals, loops, functions and file handling. FASTA parsing uses Biopython SeqIO when available, with a simple Python fallback. KNN, Streamlit, GitHub and deployment are additional self-learning components.
+Keep `app.py`, `codonprint.py`, `requirements.txt`, and `training_data_demo.csv` in the repository root.

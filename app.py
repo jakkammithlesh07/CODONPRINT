@@ -1,89 +1,79 @@
 import streamlit as st
-from codonprint import (
-    clean_sequence, validate_dna, analyse_sequence,
-    compare_sequences, read_fasta, closest_reference
-)
+from codonprint import analyse_sequence, compare_two_sequences, read_fasta_file
 
 st.set_page_config(page_title="CODONPRINT", page_icon="🧬", layout="wide")
-
-st.markdown("""
-<style>
-.stApp { background-color: #3b241b; color: #ffffff; }
-[data-testid="stHeader"] { background: rgba(0,0,0,0); }
-h1, h2, h3, p, label, span, div { color: #ffffff; }
-.stTextInput input, .stTextArea textarea {
-    background-color: #f5eee8 !important;
-    color: #24150f !important;
-}
-.stButton button {
-    background-color: #8b5a3c;
-    color: white;
-    border: 1px solid #d8b49a;
-}
-.stButton button:hover { background-color: #a87552; color: white; }
-[data-testid="stDataFrame"] { color: #24150f; }
-</style>
-""", unsafe_allow_html=True)
-
 st.title("🧬 CODONPRINT")
-st.caption("Codon Usage-Based Organism Classifier | Basic ML Project")
-st.write("Analyse DNA sequences using base composition and codon usage patterns.")
+st.subheader("Codon Usage-Based Organism Classifier")
+st.write("A Python project using Biopython and basic machine learning.")
+st.write("**Developed by:** Jakkam Mithlesh and Ch. Nirav  |  **Group 18**")
+st.info("CODONPRINT analyses DNA sequences, calculates codon usage and demonstrates classification using a simple K-Nearest Neighbours (KNN) model.")
+st.caption("The included training examples are demonstration data, not a validated biological dataset. Predictions are educational and should not be treated as confirmed organism identification.")
 
-tab1, tab2, tab3 = st.tabs(["Single sequence", "Compare sequences", "FASTA file"])
+tab1, tab2, tab3 = st.tabs(["Analyse DNA", "Compare DNA", "FASTA file"])
 
 with tab1:
-    sequence = st.text_area("Enter DNA sequence", placeholder="Example: ATGGCCGCTGCAAAAGCTGCC", height=120)
-    if st.button("Analyse sequence"):
-        cleaned = clean_sequence(sequence)
-        if not validate_dna(cleaned):
-            st.error("Invalid DNA sequence. Please use only A, T, G and C.")
+    dna = st.text_area("Enter DNA sequence (A, T, G and C only)", height=130)
+    if st.button("Analyse DNA", type="primary"):
+        result = analyse_sequence(dna)
+        if result is None:
+            st.error("Invalid sequence. Please enter only A, T, G and C.")
         else:
-            result = analyse_sequence(cleaned)
-            st.subheader("Analysis results")
-            c1, c2, c3 = st.columns(3)
-            c1.metric("Sequence length", result["length"])
-            c2.metric("GC content", f'{result["gc_content"]:.2f}%')
-            c3.metric("Total codons", result["total_codons"])
-            st.write("**Base counts**", result["base_counts"])
-            st.write("**Codon counts**", result["codon_counts"])
-            st.write("**Codon usage (%)**", {k: round(v * 100, 2) for k, v in result["codon_usage"].items()})
-            st.write("**Top codons (fingerprint)**", result["top_codons"])
-            name, score = closest_reference(result["codon_usage"])
-            st.info(f"Closest demo reference pattern: {name} (difference score: {score:.4f})")
-            st.caption("Reference patterns are simplified demonstration values, not validated biological identification.")
+            st.success("DNA sequence is valid")
+            col1, col2, col3 = st.columns(3)
+            col1.metric("Sequence length", result["length"])
+            col2.metric("GC content", f"{result['gc']:.2f}%")
+            col3.metric("Complete codons", len(result["codons"]))
+            st.write("**Base counts**", result["bases"])
+            st.write("**Codon counts**", result["counts"])
+            st.write("**Codon usage (%)**")
+            usage_rows = [{"Codon": codon, "Usage (%)": round(value * 100, 2)} for codon, value in result["usage"].items()]
+            st.dataframe(usage_rows, use_container_width=True, hide_index=True)
+            st.write("**Codon fingerprint**")
+            st.success(result["fingerprint"])
+            st.write("**Closest demonstration reference pattern**", result["closest"])
+            st.write("**Basic ML result (KNN, K = 3)**")
+            st.metric("Predicted demo label", result["ml_prediction"])
+            st.write("KNN neighbour votes:", result["ml_votes"])
+            if result["leftover"] > 0:
+                st.warning(f"{result['leftover']} leftover base(s) were not included in complete codons.")
 
 with tab2:
-    first = st.text_area("First DNA sequence", key="seq1", height=100)
-    second = st.text_area("Second DNA sequence", key="seq2", height=100)
-    if st.button("Compare sequences"):
-        a, b = clean_sequence(first), clean_sequence(second)
-        if not validate_dna(a) or not validate_dna(b):
-            st.error("Both sequences must contain only A, T, G and C.")
+    first = st.text_area("First DNA sequence", key="first_sequence")
+    second = st.text_area("Second DNA sequence", key="second_sequence")
+    if st.button("Compare DNA sequences"):
+        result = compare_two_sequences(first, second)
+        if result is None:
+            st.error("Please enter two valid DNA sequences.")
+        elif result["difference"] is None:
+            st.warning("No shared complete codons were found.")
         else:
-            result = compare_sequences(a, b)
-            st.write("**Shared codons:**", result["shared_codons"])
-            st.write("**Average usage difference:**", round(result["average_difference"], 4))
-            st.caption("A lower difference means the codon usage patterns are more similar.")
+            st.write("Shared codons:", ", ".join(result["shared"]))
+            st.metric("Average usage difference", round(result["difference"], 4))
 
 with tab3:
-    uploaded = st.file_uploader("Upload a FASTA file", type=["fasta", "fa", "fna", "txt"])
-    if uploaded is not None:
+    uploaded_file = st.file_uploader("Choose a FASTA file", type=["fasta", "fa", "fna", "txt"])
+    if uploaded_file is not None:
+        import tempfile
+        with tempfile.NamedTemporaryFile(mode="wb", suffix=".fasta", delete=False) as temporary_file:
+            temporary_file.write(uploaded_file.getvalue())
+            temporary_name = temporary_file.name
         try:
-            content = uploaded.getvalue().decode("utf-8")
-            records = read_fasta(content)
-            if not records:
-                st.warning("No FASTA sequences were found.")
+            records = read_fasta_file(temporary_name)
+            st.write("Sequences found:", len(records))
             for name, sequence in records:
-                cleaned = clean_sequence(sequence)
-                st.subheader(name)
-                if not validate_dna(cleaned):
-                    st.error("This record contains invalid DNA characters.")
-                    continue
-                result = analyse_sequence(cleaned)
-                st.write(f'Length: {result["length"]} | GC content: {result["gc_content"]:.2f}% | Codons: {result["total_codons"]}')
-                st.write("Top codons:", result["top_codons"])
+                with st.expander(name):
+                    result = analyse_sequence(sequence)
+                    if result is None:
+                        st.error("Invalid DNA sequence in this record.")
+                    else:
+                        st.write("Length:", result["length"])
+                        st.write("GC content:", round(result["gc"], 2), "%")
+                        st.write("Codon fingerprint:", result["fingerprint"])
+                        st.write("KNN demo prediction:", result["ml_prediction"])
         except Exception as error:
-            st.error(f"Could not read this FASTA file: {error}")
+            st.error("Could not read this FASTA file: " + str(error))
+        finally:
+            import os
+            os.unlink(temporary_name)
 
-st.divider()
 st.caption("CODONPRINT | Group 18")

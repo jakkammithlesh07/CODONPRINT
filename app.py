@@ -1,199 +1,118 @@
 import streamlit as st
 from codonprint import analyse_sequence, compare_two_sequences, read_fasta_file
 
-st.set_page_config(
-    page_title="CODONPRINT | DNA Analysis",
-    page_icon="🧬",
-    layout="wide"
-)
+st.set_page_config(page_title="CODONPRINT", page_icon="🧬", layout="wide")
 
-# White and blue website design
+# Simple black and silver theme
 st.markdown("""
 <style>
 .stApp {
-    background: linear-gradient(180deg, #eef6ff 0%, #ffffff 48%);
-    color: #17324d;
+    background-color: #111111;
+    color: #eeeeee;
 }
-.block-container {
-    padding-top: 2rem;
-    padding-bottom: 3rem;
-    max-width: 1200px;
+section[data-testid="stSidebar"] {
+    background-color: #202020;
 }
-.hero {
-    background: linear-gradient(120deg, #073b72, #1677c8);
-    padding: 35px;
-    border-radius: 22px;
-    color: white;
-    margin-bottom: 22px;
-    box-shadow: 0 10px 30px rgba(16, 75, 130, 0.16);
-}
-.hero h1 {
-    color: white;
-    font-size: 42px;
-    margin: 0;
-    letter-spacing: 2px;
-}
-.hero p {
-    color: #e5f2ff;
-    font-size: 17px;
-    margin-bottom: 4px;
-}
-.small-tag {
-    color: #d7ecff;
-    font-size: 13px;
-    letter-spacing: 2px;
-    font-weight: bold;
-}
-.info-card {
-    background: white;
-    border: 1px solid #d9eaff;
-    border-radius: 16px;
-    padding: 19px;
-    box-shadow: 0 5px 18px rgba(30, 90, 150, 0.06);
-    min-height: 105px;
-}
-.info-card h3 {
-    color: #1769aa;
-    margin: 0 0 8px 0;
-    font-size: 15px;
-}
-.info-card p {
-    color: #17324d;
-    font-size: 19px;
-    font-weight: 650;
-    margin: 0;
-}
-.section-title {
-    color: #104b7e;
-    font-size: 24px;
-    font-weight: 700;
-    margin-top: 10px;
+h1, h2, h3, p, label {
+    color: #eeeeee;
 }
 .stButton button, .stDownloadButton button {
-    background: #1268ad;
-    color: white;
-    border: 0;
-    border-radius: 10px;
-    padding: 10px 20px;
-    font-weight: 650;
+    background-color: #bfc3c7;
+    color: #111111;
+    border: 1px solid #eeeeee;
+    border-radius: 5px;
 }
 .stButton button:hover, .stDownloadButton button:hover {
-    background: #084b85;
-    color: white;
-    border: 0;
+    background-color: #eeeeee;
+    color: #111111;
+    border: 1px solid #ffffff;
 }
-div[data-testid="stTabs"] button {
-    font-weight: 650;
-}
-div[data-testid="stTextArea"] textarea {
-    border: 1px solid #b9d7f4;
-    border-radius: 12px;
-}
-footer {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
 # Sidebar
-st.sidebar.markdown("## 🧬 CODONPRINT")
-st.sidebar.caption("DNA sequence analysis")
-st.sidebar.markdown("---")
-st.sidebar.write("**Project team**")
+st.sidebar.title("CODONPRINT")
+st.sidebar.write("Codon Usage Analysis")
+st.sidebar.divider()
+st.sidebar.write("Group 18")
 st.sidebar.write("Jakkam Mithlesh")
 st.sidebar.write("Ch. Nirav")
-st.sidebar.markdown("---")
-st.sidebar.caption("Group 18 | Biotechnology")
+st.sidebar.write("Biotechnology")
 
 # Main heading
-st.markdown("""
-<div class="hero">
-    <div class="small-tag">GROUP 18 • BIOTECHNOLOGY PROJECT</div>
-    <h1>🧬 CODONPRINT</h1>
-    <p>Codon Usage-Based Organism Classifier</p>
-    <p>Explore DNA sequences through codon patterns, GC content and simple comparisons.</p>
-</div>
-""", unsafe_allow_html=True)
+st.title("🧬 CODONPRINT")
+st.subheader("Codon Usage-Based Organism Classifier")
+st.write("A simple tool to analyse DNA sequences and codon usage.")
+st.info(
+    "This is an educational project. The reference patterns and KNN results "
+    "are demonstrations and are not verified organism identifications."
+)
+st.divider()
 
-st.markdown("""
-<div class="info-card">
-<h3>ABOUT THIS PROJECT</h3>
-<p style="font-size:15px;font-weight:400;">
-CODONPRINT is a learning project for analysing DNA sequences.
-It calculates base composition, GC content and codon usage.
-The reference patterns and KNN output are demonstrations, not verified
-scientific organism identifications.
-</p>
-</div>
-""", unsafe_allow_html=True)
-
-st.write("")
+# Three main sections
 analysis_tab, compare_tab, fasta_tab = st.tabs(
-    ["🧬  Analyse DNA", "⇄  Compare Sequences", "📁  FASTA Analysis"]
+    ["Analyse DNA", "Compare Sequences", "FASTA File"]
 )
 
-# Analyse one sequence
+# Analyse one DNA sequence
 with analysis_tab:
-    st.markdown('<div class="section-title">DNA Sequence Analysis</div>', unsafe_allow_html=True)
-    st.write("Enter a DNA sequence to view its composition and codon pattern.")
+    st.header("Analyse DNA Sequence")
+    st.write("Enter a DNA sequence using A, T, G and C.")
+
     dna = st.text_area(
-        "DNA sequence (A, T, G and C only)",
-        placeholder="Example: ATGGCCGCTGCAAAAGCTGCC",
-        height=130
+        "DNA sequence",
+        placeholder="Example: ATGGCCGCTGCAAAAGCTGCC"
     )
 
-    if st.button("Analyse sequence", key="analyse"):
+    if st.button("Analyse DNA"):
         result = analyse_sequence(dna)
 
         if result is None:
-            st.error("Invalid sequence. Please use only A, T, G and C.")
+            st.error("Invalid sequence. Use only A, T, G and C.")
         elif len(result["codons"]) == 0:
-            st.warning("Please enter at least 3 DNA bases.")
+            st.warning("Enter at least 3 DNA bases.")
         else:
-            st.success("Sequence analysed successfully.")
+            st.success("Analysis completed.")
 
             col1, col2, col3 = st.columns(3)
             col1.metric("Sequence length", str(result["length"]) + " bases")
             col2.metric("GC content", str(round(result["gc"], 2)) + "%")
             col3.metric("Complete codons", len(result["codons"]))
 
-            st.markdown("#### Base composition")
-            b1, b2, b3, b4 = st.columns(4)
-            b1.metric("Adenine (A)", result["bases"]["A"])
-            b2.metric("Thymine (T)", result["bases"]["T"])
-            b3.metric("Guanine (G)", result["bases"]["G"])
-            b4.metric("Cytosine (C)", result["bases"]["C"])
+            st.subheader("Base Counts")
+            col1, col2, col3, col4 = st.columns(4)
+            col1.metric("A", result["bases"]["A"])
+            col2.metric("T", result["bases"]["T"])
+            col3.metric("G", result["bases"]["G"])
+            col4.metric("C", result["bases"]["C"])
 
-            st.markdown("#### Codon usage")
+            st.subheader("Codon Usage")
             codon_rows = []
+
             for codon in result["usage"]:
                 percent = round(result["usage"][codon] * 100, 2)
-                codon_rows.append({"Codon": codon, "Usage (%)": percent,
-                                   "Count": result["counts"][codon]})
-            st.dataframe(codon_rows, use_container_width=True, hide_index=True)
-            st.bar_chart(
-                codon_rows,
-                x="Codon",
-                y="Usage (%)",
-                use_container_width=True
-            )
+                codon_rows.append({
+                    "Codon": codon,
+                    "Count": result["counts"][codon],
+                    "Usage (%)": percent
+                })
 
-            st.markdown("#### Codon fingerprint")
-            st.info(result["fingerprint"])
+            st.dataframe(codon_rows, use_container_width=True)
+            st.bar_chart(codon_rows, x="Codon", y="Usage (%)")
 
-            st.markdown("#### Demonstration classification")
-            x1, x2 = st.columns(2)
-            x1.metric("Closest reference pattern", result["closest"])
-            x2.metric("Basic KNN prediction", result["ml_prediction"])
-            with st.expander("View KNN votes"):
-                st.write(result["ml_votes"])
-            with st.expander("View codon counts"):
-                st.write(result["counts"])
-            with st.expander("What does this result mean?"):
-                st.write("GC content is the percentage of G and C bases in the sequence.")
-                st.write("Codon usage shows how frequently each three-base codon occurs.")
-                st.write("The reference and KNN outputs use small demonstration data only.")
+            st.subheader("Codon Fingerprint")
+            st.write(result["fingerprint"])
+
+            st.subheader("Demonstration Classification")
+            st.write("Closest reference pattern:", result["closest"])
+            st.write("Basic KNN prediction:", result["ml_prediction"])
+            st.write("KNN votes:", result["ml_votes"])
 
             if result["leftover"] > 0:
-                st.warning(str(result["leftover"]) + " leftover base(s) were not included in complete codons.")
+                st.warning(
+                    str(result["leftover"]) +
+                    " leftover base(s) were not included in complete codons."
+                )
 
             report = "CODONPRINT ANALYSIS REPORT\n"
             report += "Sequence length: " + str(result["length"]) + "\n"
@@ -203,25 +122,23 @@ with analysis_tab:
             report += "Codon fingerprint: " + result["fingerprint"] + "\n"
             report += "Closest reference pattern: " + result["closest"] + "\n"
             report += "Basic KNN prediction: " + result["ml_prediction"] + "\n"
-            report += "Note: demonstration data only; not validated identification.\n"
+            report += "Note: demonstration data only.\n"
 
             st.download_button(
-                "⬇ Download analysis report",
+                "Download Analysis Report",
                 report,
                 file_name="codonprint_report.txt"
             )
 
-# Compare two sequences
+# Compare two DNA sequences
 with compare_tab:
-    st.markdown('<div class="section-title">Compare DNA Sequences</div>', unsafe_allow_html=True)
-    st.write("Enter two DNA sequences to compare their shared codons and usage.")
-    left, right = st.columns(2)
-    with left:
-        first = st.text_area("First DNA sequence", placeholder="Enter first sequence", height=130)
-    with right:
-        second = st.text_area("Second DNA sequence", placeholder="Enter second sequence", height=130)
+    st.header("Compare Two Sequences")
+    st.write("Enter two DNA sequences to compare their codon usage.")
 
-    if st.button("Compare sequences", key="compare"):
+    first = st.text_area("First DNA sequence")
+    second = st.text_area("Second DNA sequence")
+
+    if st.button("Compare DNA"):
         result = compare_two_sequences(first, second)
 
         if result is None:
@@ -230,15 +147,17 @@ with compare_tab:
             st.warning("No shared complete codons were found.")
         else:
             st.success("Comparison completed.")
-            st.metric("Average usage difference", round(result["difference"], 4))
-            st.markdown("#### Shared codons")
-            st.write(", ".join(result["shared"]))
-            st.caption("A smaller difference means the shared codon usage values are more similar.")
+            st.metric(
+                "Average usage difference",
+                round(result["difference"], 4)
+            )
+            st.write("Shared codons:", ", ".join(result["shared"]))
 
-# FASTA file analysis
+# Read sequences from a FASTA file
 with fasta_tab:
-    st.markdown('<div class="section-title">FASTA File Analysis</div>', unsafe_allow_html=True)
-    st.write("Upload a FASTA file containing one or more DNA sequences.")
+    st.header("FASTA File Analysis")
+    st.write("Upload a FASTA file containing DNA sequences.")
+
     uploaded_file = st.file_uploader(
         "Choose a FASTA file",
         type=["fasta", "fa", "fna", "txt"]
@@ -252,30 +171,31 @@ with fasta_tab:
         records = read_fasta_file("uploaded_sequences.fasta")
 
         if len(records) == 0:
-            st.warning("No FASTA sequences were found in this file.")
+            st.warning("No sequences were found in this file.")
         else:
             st.success(str(len(records)) + " sequence(s) found.")
-            for name, sequence in records:
-                with st.expander(name, expanded=True):
-                    result = analyse_sequence(sequence)
-                    if result is None:
-                        st.error("This record contains invalid DNA bases.")
-                    elif len(result["codons"]) == 0:
-                        st.warning("This record does not contain a complete codon.")
-                    else:
-                        c1, c2, c3 = st.columns(3)
-                        c1.metric("Length", str(result["length"]) + " bases")
-                        c2.metric("GC content", str(round(result["gc"], 2)) + "%")
-                        c3.metric("Codons", len(result["codons"]))
-                        st.write("Codon fingerprint:", result["fingerprint"])
-                        st.write("Closest reference pattern:", result["closest"])
-                        if result["leftover"] > 0:
-                            st.caption(str(result["leftover"]) + " leftover base(s) were not used.")
 
-st.markdown("---")
-st.markdown(
-    "<div style='text-align:center;color:#54718c;font-size:13px;'>"
-    "CODONPRINT  |  Group 18  |  Codon Usage Analysis"
-    "</div>",
-    unsafe_allow_html=True
-)
+            for name, sequence in records:
+                st.subheader(name)
+                result = analyse_sequence(sequence)
+
+                if result is None:
+                    st.error("This record contains invalid DNA bases.")
+                elif len(result["codons"]) == 0:
+                    st.warning("This record has no complete codons.")
+                else:
+                    col1, col2, col3 = st.columns(3)
+                    col1.metric("Length", str(result["length"]) + " bases")
+                    col2.metric("GC content", str(round(result["gc"], 2)) + "%")
+                    col3.metric("Codons", len(result["codons"]))
+                    st.write("Codon fingerprint:", result["fingerprint"])
+                    st.write("Closest reference pattern:", result["closest"])
+
+                    if result["leftover"] > 0:
+                        st.warning(
+                            str(result["leftover"]) +
+                            " leftover base(s) were not used."
+                        )
+
+st.divider()
+st.caption("CODONPRINT | Group 18 | Codon Usage Analysis")

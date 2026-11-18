@@ -170,8 +170,9 @@ with analysis_tab:
                                    "Count": result["counts"][codon]})
             st.dataframe(codon_rows, use_container_width=True, hide_index=True)
             st.bar_chart(
-                {"Usage (%)": [row["Usage (%)"] for row in codon_rows]},
-                x=[row["Codon"] for row in codon_rows],
+                codon_rows,
+                x="Codon",
+                y="Usage (%)",
                 use_container_width=True
             )
 

@@ -1,0 +1,10 @@
+sample_id,organism,GCT,GCC,GCA,GCG,AAA,AAG
+ecoli_demo_1,E_coli_demo,0.18,0.26,0.23,0.33,0.34,0.66
+ecoli_demo_2,E_coli_demo,0.20,0.25,0.22,0.33,0.35,0.65
+ecoli_demo_3,E_coli_demo,0.17,0.27,0.24,0.32,0.33,0.67
+human_demo_1,Human_demo,0.27,0.40,0.23,0.10,0.43,0.57
+human_demo_2,Human_demo,0.26,0.41,0.23,0.10,0.44,0.56
+human_demo_3,Human_demo,0.28,0.39,0.23,0.10,0.42,0.58
+yeast_demo_1,Yeast_demo,0.38,0.22,0.29,0.11,0.42,0.58
+yeast_demo_2,Yeast_demo,0.37,0.23,0.29,0.11,0.43,0.57
+yeast_demo_3,Yeast_demo,0.39,0.21,0.28,0.12,0.41,0.59
